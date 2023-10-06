@@ -11,9 +11,11 @@ importers:
       hono: ^3.7.5
       pino: ^8.15.6
       pino-pretty: ^10.2.3
+      zod: ^3.22.4
     dependencies:
       hono: 3.7.5
       pino: 8.15.6
+      zod: 3.22.4
     devDependencies:
       bun-types: 1.0.3
       pino-pretty: 10.2.3
@@ -289,3 +291,7 @@ packages:
   /wrappy/1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
     dev: true
+
+  /zod/3.22.4:
+    resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
+    dev: false

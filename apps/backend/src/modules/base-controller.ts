@@ -1,4 +1,7 @@
 import { Context, Hono } from 'hono';
+import zod from 'zod';
+import BaseError from '../utils/errors/base-error';
+import ValidationError from '../utils/errors/validation-error';
 
 export type ResponseTypes = Promise<Response> | Response;
 
@@ -6,6 +9,8 @@ export type Controller = {
   _app: Hono;
 
   router(): Hono;
+
+  validate<T>(ctx: Context, schema: zod.Schema<T>): Promise<T>;
 
   ok(ctx: Context, additionalData: any, message?: string): ResponseTypes;
   created(ctx: Context, additionalData: any, message?: string): ResponseTypes;
@@ -21,6 +26,24 @@ export default class BaseController implements Controller {
 
   public router(): Hono {
     throw new Error('Method not implemented.');
+  }
+
+  public async validate<T>(ctx: Context, schema: zod.Schema<T>): Promise<T> {
+    try {
+      const body = await ctx.req.json();
+      return schema.parse(body);
+    } catch (error) {
+      if (error instanceof zod.ZodError) {
+        throw new ValidationError(error);
+      }
+
+      throw new BaseError({
+        message: 'Request body could not be parsed.',
+        code: 'REQUEST_BODY_PARSE_ERROR',
+        action: 'Make sure that the request body is a valid JSON.',
+        statusCode: 400,
+      });
+    }
   }
 
   public ok(ctx: Context, data: any, message?: string): ResponseTypes {
