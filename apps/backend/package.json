@@ -15,9 +15,11 @@
     "start": "bun ./src/index.ts"
   },
   "devDependencies": {
-    "bun-types": "^1.0.3"
+    "bun-types": "^1.0.3",
+    "pino-pretty": "^10.2.3"
   },
   "dependencies": {
-    "hono": "^3.7.5"
+    "hono": "^3.7.5",
+    "pino": "^8.15.6"
   }
 }

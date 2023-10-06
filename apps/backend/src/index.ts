@@ -1,6 +1,7 @@
 import { getServer } from './bootstrap';
+import { log } from './utils/logger';
 
-console.log('Starting server...');
+log.info('Welcome to the WIKI Backend!');
 
 const server = getServer();
 
@@ -9,4 +10,4 @@ Bun.serve({
   port: process.env.PORT || 3001,
 });
 
-console.log(`Wiki server started on ${process.env.PORT || 3001}`);
+log.info(`WIKI Backend API started on http://localhost:${process.env.PORT || 3001}`);
