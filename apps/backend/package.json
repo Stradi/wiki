@@ -1,0 +1,20 @@
+{
+  "name": "@wiki/backend",
+  "description": "Backend API for the Wiki project",
+  "version": "0.0.0",
+  "private": true,
+  "author": "Batın Evirgen <hi@batin.sh> (https://www.batin.sh)",
+  "homepage": "https://www.github.com/Stradi/wiki",
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/Stradi/wiki.git",
+    "directory": "apps/backend"
+  },
+  "scripts": {
+    "dev": "bun --hot ./src/index.ts",
+    "start": "bun ./src/index.ts"
+  },
+  "devDependencies": {
+    "bun-types": "^1.0.3"
+  }
+}
