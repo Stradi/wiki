@@ -1,0 +1,22 @@
+-- CreateTable
+CREATE TABLE "Page" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "title" TEXT NOT NULL,
+    "slug" TEXT NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "Revision" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "content" TEXT NOT NULL,
+    "isCurrent" BOOLEAN NOT NULL DEFAULT false,
+    "pageId" INTEGER NOT NULL,
+    CONSTRAINT "Revision_pageId_fkey" FOREIGN KEY ("pageId") REFERENCES "Page" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Page_slug_key" ON "Page"("slug");
