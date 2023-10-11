@@ -2,8 +2,20 @@ import { Context, Hono } from 'hono';
 import zod from 'zod';
 import BaseError from '../utils/errors/base-error';
 import ValidationError from '../utils/errors/validation-error';
+import { ResponseStatus, resp } from '../utils/response';
 
 export type ResponseTypes = Promise<Response> | Response;
+
+type SuccessResponseData = Partial<{
+  message: string;
+  payload: any;
+}>;
+
+type ErrorResponseData = Partial<{
+  code: string;
+  message: string;
+  action: string;
+}>;
 
 export type Controller = {
   _app: Hono;
@@ -12,13 +24,13 @@ export type Controller = {
 
   validate<T>(ctx: Context, schema: zod.Schema<T>): Promise<T>;
 
-  ok(ctx: Context, additionalData: any, message?: string): ResponseTypes;
-  created(ctx: Context, additionalData: any, message?: string): ResponseTypes;
-  noContent(ctx: Context, message?: string): ResponseTypes;
-  badRequest(ctx: Context, message?: string): ResponseTypes;
-  notAllowed(ctx: Context, message?: string): ResponseTypes;
-  notFound(ctx: Context, message?: string): ResponseTypes;
-  internalServerError(ctx: Context, message?: string): ResponseTypes;
+  ok(ctx: Context, additionalData?: SuccessResponseData): ResponseTypes;
+  created(ctx: Context, additionalData?: SuccessResponseData): ResponseTypes;
+  noContent(ctx: Context, additionalData?: Omit<SuccessResponseData, 'payload'>): ResponseTypes;
+  badRequest(ctx: Context, additionalData?: ErrorResponseData): ResponseTypes;
+  notAllowed(ctx: Context, additionalData?: ErrorResponseData): ResponseTypes;
+  notFound(ctx: Context, additionalData?: ErrorResponseData): ResponseTypes;
+  internalServerError(ctx: Context, additionalData?: ErrorResponseData): ResponseTypes;
 };
 
 export default class BaseController implements Controller {
@@ -46,66 +58,102 @@ export default class BaseController implements Controller {
     }
   }
 
-  public ok(ctx: Context, data: any, message?: string): ResponseTypes {
+  public ok(ctx: Context, additionalData: SuccessResponseData = {}): ResponseTypes {
+    const responseObj = resp({
+      status: ResponseStatus.OK,
+      data: {
+        message: additionalData.message || 'Ok',
+        payload: additionalData.payload || null,
+      },
+    });
+
     ctx.status(200);
-    return ctx.json({
-      error: null,
-      data,
-      message: message || 'OK',
-    });
+    return ctx.json(responseObj);
   }
 
-  public created(ctx: Context, data: any, message?: string): ResponseTypes {
+  public created(ctx: Context, additionalData: SuccessResponseData = {}): ResponseTypes {
+    const responseObj = resp({
+      status: ResponseStatus.CREATED,
+      data: {
+        message: additionalData.message || 'Created',
+        payload: additionalData.payload || null,
+      },
+    });
+
     ctx.status(201);
-    return ctx.json({
-      error: null,
-      data,
-      message: message || 'Created',
-    });
+    return ctx.json(responseObj);
   }
 
-  public noContent(ctx: Context, message?: string): ResponseTypes {
+  public noContent(ctx: Context, additionalData: Omit<SuccessResponseData, 'payload'> = {}): ResponseTypes {
+    const responseObj = resp({
+      status: ResponseStatus.NO_CONTENT,
+      data: {
+        message: additionalData.message || 'No content',
+        payload: null,
+      },
+    });
+
     ctx.status(204);
-    return ctx.json({
-      error: null,
-      data: {},
-      message: message || 'No Content',
-    });
+    return ctx.json(responseObj);
   }
 
-  public badRequest(ctx: Context, message?: string): ResponseTypes {
+  public badRequest(ctx: Context, additionalData: ErrorResponseData = {}): ResponseTypes {
+    const responseObj = resp({
+      status: ResponseStatus.BAD_REQUEST,
+      data: {
+        code: additionalData.code || 'BAD_REQUEST',
+        message: additionalData.message || 'Bad Request',
+        action: additionalData.action || 'Please make sure that the request payload is matching the schema.',
+      },
+    });
+
     ctx.status(400);
-    return ctx.json({
-      error: null,
-      data: {},
-      message: message || 'Bad Request',
-    });
+    return ctx.json(responseObj);
   }
 
-  public notAllowed(ctx: Context, message?: string): ResponseTypes {
+  public notAllowed(ctx: Context, additionalData: ErrorResponseData = {}): ResponseTypes {
+    const responseObj = resp({
+      status: ResponseStatus.NOT_ALLOWED,
+      data: {
+        code: additionalData.code || 'NOT_ALLOWED',
+        message: additionalData.message || 'Not Allowed',
+        action:
+          additionalData.action ||
+          'This request method is not allowed. Are you sure you are using the correct HTTP verb?',
+      },
+    });
+
     ctx.status(405);
-    return ctx.json({
-      error: null,
-      data: {},
-      message: message || 'Not Allowed',
-    });
+    return ctx.json(responseObj);
   }
 
-  public notFound(ctx: Context, message?: string): ResponseTypes {
+  public notFound(ctx: Context, additionalData: ErrorResponseData = {}): ResponseTypes {
+    const responseObj = resp({
+      status: ResponseStatus.NOT_FOUND,
+      data: {
+        code: additionalData.code || 'NOT_FOUND',
+        message: additionalData.message || 'Not Found',
+        action: additionalData.action || 'This resource does not exist.',
+      },
+    });
+
     ctx.status(404);
-    return ctx.json({
-      error: null,
-      data: {},
-      message: message || 'Not Found',
-    });
+    return ctx.json(responseObj);
   }
 
-  public internalServerError(ctx: Context, message?: string): ResponseTypes {
-    ctx.status(500);
-    return ctx.json({
-      error: null,
-      data: {},
-      message: message || 'Internal Server Error',
+  public internalServerError(ctx: Context, additionalData: ErrorResponseData = {}): ResponseTypes {
+    const responseObj = resp({
+      status: ResponseStatus.INTERNAL_SERVER_ERROR,
+      data: {
+        code: additionalData.code || 'INTERNAL_SERVER_ERROR',
+        message: additionalData.message || 'Internal Server Error',
+        action:
+          additionalData.action ||
+          "Whoops! Something went horribly wrong and I don't know what to do. Please try again later.",
+      },
     });
+
+    ctx.status(500);
+    return ctx.json(responseObj);
   }
 }
